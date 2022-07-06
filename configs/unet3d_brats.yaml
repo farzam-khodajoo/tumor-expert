@@ -1,0 +1,17 @@
+model:
+  name: UNet3D
+  # number of input channels to the model
+  in_channels: 3
+  # number of output channels
+  out_channels: 3
+  # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
+  layer_order: gcr
+  # initial number of feature maps
+  f_maps: 32
+  # number of groups in the groupnorm
+  num_groups: 8
+  # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
+  final_sigmoid: true
+
+loss:
+  name: BCEDiceLoss
