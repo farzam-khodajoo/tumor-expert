@@ -49,7 +49,7 @@ class BraTs(Dataset, BraTsPreProcessing):
         channels, segmentation = self.crop_background(data_batch)
         if self.normalize_images:
             channels = self.norm(channels)
-        if self.concate_one_hot_encoding:
+        if self.on_hot:
             channels = self.concate_one_hot_encoding(channels)
         # three channel output: edema, non-enhancing glioma, enhancing glioma
         channels = torch.tensor(channels)

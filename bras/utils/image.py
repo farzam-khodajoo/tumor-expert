@@ -1,6 +1,30 @@
 import importlib
 import numpy as np
 import monai.transforms as transforms
+import torch.nn.functional as F
+
+def zero_padding(image_batch):
+    # Determine maximum height and width
+    # The mask's have the same height and width
+    # since they mask the image.
+    max_height = max([img.size(1) for img in image_batch])
+    max_width = max([img.size(2) for img in image_batch])
+
+    image_batch = [
+        # The needed padding is the difference between the
+        # max width/height and the image's actual width/height.
+        F.pad(img, [0, max_width - img.size(2), 0, max_height - img.size(1)])
+        for img in image_batch
+    ]
+    mask_batch = [
+        # Same as for the images, but there is no channel dimension
+        # Therefore the mask's width is dimension 1 instead of 2
+        F.pad(mask, [0, max_width - mask.size(1), 0, max_height - mask.size(0)])
+        for mask in mask_batch
+    ]
+
+    return image_batch, mask_batch
+
 
 class BraTsPreProcessing:
     """crop redundant background voxels (with voxel value zero)"""
