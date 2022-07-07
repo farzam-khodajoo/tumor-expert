@@ -2,6 +2,7 @@
 from pathlib import Path
 import torch
 from torch.utils.data import Dataset
+import monai.transforms as transforms
 from bras.utils.mri import MRI
 from bras.utils.image import BraTsPreProcessing
 from bras.nn.loss import expand_as_one_hot
@@ -10,13 +11,15 @@ class BraTs(Dataset, BraTsPreProcessing):
 
     MRI_MODALITIES = ["flair", "t1", "t1ce", "t2"]
 
-    def __init__(self, path: Path, one_hot_encoding: bool=False) -> None:
+    def __init__(self, path: Path, one_hot_encoding: bool=False, normalize: bool=True) -> None:
         super().__init__()
         self.sample_list = self._list_samples(path=path)
         if len(self) == 0:
             print("warning, no image sample found in {}".format(str(path)))
 
         self.on_hot = one_hot_encoding
+        self.norm = transforms.NormalizeIntensity(nonzero=True, channel_wise=True)
+        self.normalize_images = normalize
 
     @staticmethod
     def _list_samples(path):
@@ -42,6 +45,7 @@ class BraTs(Dataset, BraTsPreProcessing):
         # load flair, t1, t2 and segmentation from each sample directory
         data_batch = self.load_channels(index)
         channels, segmentation = self.crop_background(data_batch)
+        if self.normalize_images: channels = self.norm(channels)
         if self.concate_one_hot_encoding: channels = self.concate_one_hot_encoding(channels)
         segmentation = expand_as_one_hot(segmentation)
         return channels, segmentation
