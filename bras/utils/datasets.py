@@ -47,7 +47,7 @@ class BraTs(Dataset, BraTsPreProcessing):
         channels, segmentation = self.crop_background(data_batch)
         if self.normalize_images: channels = self.norm(channels)
         if self.concate_one_hot_encoding: channels = self.concate_one_hot_encoding(channels)
-        segmentation = expand_as_one_hot(segmentation)
+        segmentation = expand_as_one_hot(segmentation, C=3) # three channel output: edema, non-enhancing glioma, enhancing glioma
         return channels, segmentation
 
     def __len__(self):
