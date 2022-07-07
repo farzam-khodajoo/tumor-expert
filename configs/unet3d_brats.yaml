@@ -1,7 +1,7 @@
 model:
   name: UNet3D
   # number of input channels to the model
-  in_channels: 3
+  in_channels: 5
   # number of output channels
   out_channels: 3
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)

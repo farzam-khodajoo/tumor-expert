@@ -1,33 +1,28 @@
 import importlib
 import numpy as np
-import torch
-from torch.nn import Module
+import monai.transforms as transforms
 
-
-class BackgroundCrop(Module):
+class BraTsPreProcessing:
     """crop redundant background voxels (with voxel value zero)"""
 
-    def __init__(self) -> None:
-        super().__init__()
+    @staticmethod
+    def crop_background(images):
+        """crop background pixel values, as they do not provide any useful information. to be ignored by the neural network"""
+        input_images, segmentation = images
+        bounding_box_image_sample = input_images[:, :, :, 100]
+        crop_stack = np.concatenate([segmentation.reshape((1, *segmentation.shape)), input_images])
+        bbox = transforms.utils.generate_spatial_bounding_box(bounding_box_image_sample)
+        crop_image = transforms.SpatialCrop(roi_start=bbox[0], roi_end=bbox[1])(crop_stack)
+        segmentation = crop_image[0]
+        input_images = crop_image[1:]
+        return input_images, segmentation
 
     @staticmethod
-    def bbox(image):
-        """get bounding box of non-zero region"""
-        rows = np.any(image, axis=1)
-        cols = np.any(image, axis=0)
-        ymin, ymax = np.where(rows)[0][[0, -1]]
-        xmin, xmax = np.where(cols)[0][[0, -1]]
-        return image[ymin:ymax+1, xmin:xmax+1]
-
-    def forward(self, image_batch):
-        if torch.is_tensor(image_batch):
-            image_batch = image_batch.numpy()
-
-        if len(image_batch.shape) == 2:
-            return torch.tensor(self.bbox(image_batch))
-        else:
-            return torch.tensor(np.stack([self.bbox(image) for image in image_batch]))
-
+    def concate_one_hot_encoding(input_channels: np.array):
+        mask = np.ones(input_channels.shape[1:], dtype=np.float32)
+        for idx in range(input_channels.shape[0]): mask[np.where(input_channels[idx] <= 0)] *= 0.0
+        mask = np.expand_dims(mask, 0)
+        return np.concatenate([input_channels, mask])
 
 class ModelGenerator:
 
