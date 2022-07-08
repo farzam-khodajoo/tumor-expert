@@ -1,14 +1,17 @@
 """a collection of medical datasets"""
+from modulefinder import Module
 from pathlib import Path
+from turtle import forward
+from unicodedata import name
 import torch
 from torch.utils.data import Dataset
 import monai.transforms as transforms
 from bras.utils.mri import MRI
-from bras.utils.image import BraTsPreProcessing
 from bras.nn.loss import expand_as_one_hot
+import numpy as np
 
 
-class BraTs(Dataset, BraTsPreProcessing):
+class BraTs(Dataset):
 
     MRI_MODALITIES = ["flair", "t1", "t1ce", "t2"]
 
@@ -29,6 +32,14 @@ class BraTs(Dataset, BraTsPreProcessing):
         print(f"loading {len(lsdir)} samples from {str(path)}")
         return lsdir
 
+    
+    @staticmethod
+    def concate_one_hot_encoding(input_channels: np.array):
+        mask = np.ones(input_channels.shape[1:], dtype=np.float32)
+        for idx in range(input_channels.shape[0]): mask[np.where(input_channels[idx] <= 0)] *= 0.0
+        mask = np.expand_dims(mask, 0)
+        return np.concatenate([input_channels, mask])
+
     def load_channels(self, idx):
         sample_dir = self.sample_list[idx]
         sample_id = sample_dir.name
@@ -46,7 +57,6 @@ class BraTs(Dataset, BraTsPreProcessing):
     def __getitem__(self, index: int):
         # load flair, t1, t2 and segmentation from each sample directory
         data_batch = self.load_channels(index)
-        channels, segmentation = self.crop_background(data_batch)
         if self.normalize_images:
             channels = self.norm(channels)
         if self.on_hot:
@@ -58,3 +68,17 @@ class BraTs(Dataset, BraTsPreProcessing):
 
     def __len__(self):
         return len(self.sample_list)
+
+
+class CropBraTs(torch.nn.Module):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.crop = transforms.CropForeground(select_fn=lambda x: x>0., margin=0, channel_indices=[2, 3])
+
+    def forward(self, batch, *_):
+        images, segmentations = batch
+        bbox_start, bbox_end = self.crop.compute_bounding_box(images)
+        cropped_images = self.crop.crop_pad(images, bbox_start, bbox_end)
+        cropped_segmentation = self.crop.crop_pad(segmentations, bbox_start, bbox_end)
+        return cropped_images, cropped_segmentation
