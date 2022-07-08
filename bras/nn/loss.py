@@ -44,14 +44,14 @@ def expand_as_one_hot(input, C, ignore_index=None):
         input = input.clone()
         input[input == ignore_index] = 0
         # scatter to get the one-hot tensor
-        result = torch.zeros(shape).to(input.device).scatter_(1, input, 1)
+        result = torch.zeros(shape).to(input.device).scatter_(1, torch.LongTensor(input), 1)
         # bring back the ignore_index in the result
         result[mask] = ignore_index
         return result
     else:
         # scatter to get the one-hot tensor
-        return torch.zeros(shape).to(input.device).scatter_(1, input, 1)
-
+        return torch.zeros(shape).to(input.device).scatter_(1, torch.LongTensor(input), 1)
+nput.device).scatter_(1, input, 1)
 
 def compute_per_channel_dice(input, target, epsilon=1e-6, weight=None):
     """
