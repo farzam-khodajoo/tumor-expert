@@ -4,6 +4,7 @@ from torch import nn as nn
 from torch.autograd import Variable
 from torch.nn import MSELoss, SmoothL1Loss, L1Loss
 
+
 def flatten(tensor):
     """Flattens a given tensor such that the channel axis is first.
     The shapes are transformed as follows:
@@ -17,6 +18,7 @@ def flatten(tensor):
     transposed = tensor.permute(axis_order)
     # Flatten: (C, N, D, H, W) -> (C, N * D * H * W)
     return transposed.contiguous().view(C, -1)
+
 
 def expand_as_one_hot(input, C, ignore_index=None):
     """
@@ -44,14 +46,15 @@ def expand_as_one_hot(input, C, ignore_index=None):
         input = input.clone()
         input[input == ignore_index] = 0
         # scatter to get the one-hot tensor
-        result = torch.zeros(shape).to(input.device).scatter_(1, torch.LongTensor(input), 1)
+        result = torch.zeros(shape).to(input.device).scatter_(
+            1, torch.LongTensor(input), 1)
         # bring back the ignore_index in the result
         result[mask] = ignore_index
         return result
     else:
         # scatter to get the one-hot tensor
         return torch.zeros(shape).to(input.device).scatter_(1, torch.LongTensor(input), 1)
-nput.device).scatter_(1, input, 1)
+
 
 def compute_per_channel_dice(input, target, epsilon=1e-6, weight=None):
     """
@@ -79,6 +82,7 @@ def compute_per_channel_dice(input, target, epsilon=1e-6, weight=None):
     # here we can use standard dice (input + target).sum(-1) or extension (see V-Net) (input^2 + target^2).sum(-1)
     denominator = (input * input).sum(-1) + (target * target).sum(-1)
     return 2 * (intersect / denominator.clamp(min=epsilon))
+
 
 class _AbstractDiceLoss(nn.Module):
     """
@@ -168,6 +172,6 @@ def _create_loss(name, loss_config, weight):
     elif name == 'DiceLoss':
         normalization = loss_config.get('normalization', 'sigmoid')
         return DiceLoss(weight=weight, normalization=normalization)
-        
+
     else:
         raise RuntimeError(f"Unsupported loss function: '{name}'")

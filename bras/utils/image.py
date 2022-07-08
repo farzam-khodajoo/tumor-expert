@@ -7,7 +7,7 @@ class CropBackground(torch.nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.crop = transforms.CropForeground(
-            select_fn=lambda x: x > 0., margin=0, channel_indices=3)
+            select_fn=lambda x: x > 0, margin=0, channel_indices=3)
 
     def forward(self, batch, *_):
         images, segmentations = batch
