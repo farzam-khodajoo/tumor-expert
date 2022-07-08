@@ -1,17 +1,18 @@
-import importlib
+import torch
+from monai import transforms
 
 
-class ModelGenerator:
+class CropBackground(torch.nn.Module):
 
-    @staticmethod
-    def number_of_features_per_level(init_channel_number, num_levels):
-        return [init_channel_number * 2 ** k for k in range(num_levels)]
+    def __init__(self) -> None:
+        super().__init__()
+        self.crop = transforms.CropForeground(
+            select_fn=lambda x: x > 0., margin=0, channel_indices=[2, 3])
 
-    @staticmethod
-    def get_class(class_name, modules):
-        for module in modules:
-            m = importlib.import_module(module)
-            clazz = getattr(m, class_name, None)
-            if clazz is not None:
-                return clazz
-        raise RuntimeError(f'Unsupported dataset class: {class_name}')
+    def forward(self, batch, *_):
+        images, segmentations = batch
+        bbox_start, bbox_end = self.crop.compute_bounding_box(images)
+        cropped_images = self.crop.crop_pad(images, bbox_start, bbox_end)
+        cropped_segmentation = self.crop.crop_pad(
+            segmentations, bbox_start, bbox_end)
+        return cropped_images, cropped_segmentation

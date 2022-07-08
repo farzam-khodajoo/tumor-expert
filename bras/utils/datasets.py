@@ -32,11 +32,11 @@ class BraTs(Dataset):
         print(f"loading {len(lsdir)} samples from {str(path)}")
         return lsdir
 
-    
     @staticmethod
     def concate_one_hot_encoding(input_channels: np.array):
         mask = np.ones(input_channels.shape[1:], dtype=np.float32)
-        for idx in range(input_channels.shape[0]): mask[np.where(input_channels[idx] <= 0)] *= 0.0
+        for idx in range(input_channels.shape[0]):
+            mask[np.where(input_channels[idx] <= 0)] *= 0.0
         mask = np.expand_dims(mask, 0)
         return np.concatenate([input_channels, mask])
 
@@ -56,7 +56,7 @@ class BraTs(Dataset):
 
     def __getitem__(self, index: int):
         # load flair, t1, t2 and segmentation from each sample directory
-        data_batch = self.load_channels(index)
+        channels, segmentation = self.load_channels(index)
         if self.normalize_images:
             channels = self.norm(channels)
         if self.on_hot:
@@ -68,17 +68,3 @@ class BraTs(Dataset):
 
     def __len__(self):
         return len(self.sample_list)
-
-
-class CropBraTs(torch.nn.Module):
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.crop = transforms.CropForeground(select_fn=lambda x: x>0., margin=0, channel_indices=[2, 3])
-
-    def forward(self, batch, *_):
-        images, segmentations = batch
-        bbox_start, bbox_end = self.crop.compute_bounding_box(images)
-        cropped_images = self.crop.crop_pad(images, bbox_start, bbox_end)
-        cropped_segmentation = self.crop.crop_pad(segmentations, bbox_start, bbox_end)
-        return cropped_images, cropped_segmentation

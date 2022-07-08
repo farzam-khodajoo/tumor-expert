@@ -6,7 +6,20 @@ import torch.nn as nn
 from bras.nn.blocks import DoubleConv, ExtResNetBlock, create_encoders, \
     create_decoders
 
-from bras.utils.image import ModelGenerator
+import importlib
+
+
+def number_of_features_per_level(init_channel_number, num_levels):
+    return [init_channel_number * 2 ** k for k in range(num_levels)]
+
+
+def get_class(class_name, modules):
+    for module in modules:
+        m = importlib.import_module(module)
+        clazz = getattr(m, class_name, None)
+        if clazz is not None:
+            return clazz
+    raise RuntimeError(f'Unsupported dataset class: {class_name}')
 
 
 class Abstract3DUNet(nn.Module):
@@ -44,7 +57,7 @@ class Abstract3DUNet(nn.Module):
         super(Abstract3DUNet, self).__init__()
 
         if isinstance(f_maps, int):
-            f_maps = ModelGenerator.number_of_features_per_level(
+            f_maps = number_of_features_per_level(
                 f_maps, num_levels=num_levels)
 
         assert isinstance(f_maps, list) or isinstance(f_maps, tuple)
@@ -170,6 +183,6 @@ class UNet2D(Abstract3DUNet):
 
 
 def get_model(model_config):
-    model_class = ModelGenerator.get_class(model_config['name'], modules=[
-                                           'bras.nn.bts'])
+    model_class = get_class(model_config['name'], modules=[
+        'bras.nn.bts'])
     return model_class(**model_config)
