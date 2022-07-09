@@ -14,7 +14,7 @@ model:
 
 loss:
   include_background: false
-  simgoid: true
+  sigmoid: true
   batch: true
   gamma: 2.0
 
@@ -30,3 +30,7 @@ lr_scheduler:
   mode: min
   factor: 0.5
   patience: 30
+
+train:
+  # number of samples in each batch
+  batch_size: 5

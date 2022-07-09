@@ -1,7 +1,7 @@
 """a collection of medical datasets"""
 import torch
 from torch.utils.data import Dataset
-from bras.utils.mri import MRI
+from bras.utils.image import MRI
 from pathlib import Path
 import numpy as np
 
@@ -19,6 +19,8 @@ class BraTsDataset(Dataset):
     NON_ENHANCING_TUMOR = 1
     EDEMA = 2
     ENHANCING_TUMOR = 4
+
+    MRI_MODALITIES = ["flair", "t1", "t1ce", "t2"]
 
     def __init__(self, dataset_path: Path, expand_segmentations: bool = True, append_on_hot_channel: bool = True) -> None:
         super().__init__()
@@ -95,7 +97,7 @@ class BraTsDataset(Dataset):
         if self.expand_segmentations:
             segmentations = self.expand_on_hot_segmentation(segmentations)
 
-        def T(inp): return torch.Tensor(T)
+        T = torch.tensor
         return T(channels), T(segmentations)
 
     def __len__(self):
