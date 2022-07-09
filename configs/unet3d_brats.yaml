@@ -1,20 +1,22 @@
 model:
-  name: UNet3D
   # number of input channels to the model
   in_channels: 5
   # number of output channels
   out_channels: 3
-  # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
-  layer_order: gcr
-  # initial number of feature maps
-  f_maps: 15
-  # number of groups in the groupnorm
-  num_groups: 1
-  # apply element-wise nn.Sigmoid after the final 1x1x1 convolution, otherwise apply nn.Softmax
-  final_sigmoid: true
+  # Conv3D kernel sizes
+  kernels: [[3, 3, 3], [3, 3, 3], [3, 3, 3], [3, 3, 3], [3, 3, 3], [3, 3, 3], [3, 3, 3]]
+  # Conv3D strides
+  strides:  [[1, 1, 1], [2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2]]
+  # Conv3D filter sizes
+  filters: [64, 96, 128, 192, 256, 384, 512]
+  # use deep supervision
+  deep_supervision: true
 
 loss:
-  name: BCEDiceLoss
+  include_background: false
+  simgoid: true
+  batch: true
+  gamma: 2.0
 
 optimizer:
   # initial learning rate
