@@ -6,7 +6,16 @@ model:
   # number of output channels
   out_channels: 3
   # strides each layer
-  strides: [[1, 1, 1], [2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2]]
+  strides:
+    [
+      [1, 1, 1],
+      [2, 2, 2],
+      [2, 2, 2],
+      [2, 2, 2],
+      [2, 2, 2],
+      [2, 2, 2],
+      [2, 2, 2],
+    ]
   # filter feature map for each layer
   filters: [64, 96, 128, 192, 256, 384, 512]
   # using Dropout in model
@@ -23,7 +32,20 @@ loss:
   sigmoid: true
   # a small constant added to the denominator to avoid nan.
   smooth_dr: 1e-5
-  
+
   batch: false
   # will be used only if loss function is DiceFocalLoss
   gamma: 2
+
+optimizer:
+  # initial learning rate
+  learning_rate: 0.0002
+  # weight decay
+  weight_decay: 0.00001
+
+lr_scheduler:
+  name: ReduceLROnPlateau
+  # make sure to use the 'min' mode cause lower AdaptedRandError is better
+  mode: min
+  factor: 0.5
+  patience: 30
