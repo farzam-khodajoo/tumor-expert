@@ -1,104 +1,110 @@
-"""a collection of medical datasets"""
-import torch
-from torch.utils.data import Dataset
-from bras.utils.image import MRI
+from turtle import down
+from typing import Union
 from pathlib import Path
 import numpy as np
+from monai.apps import DecathlonDataset
+from monai.transforms import (
+    Compose,
+    LoadImaged,
+    MapTransform,
+    NormalizeIntensityd,
+    Orientationd,
+    RandFlipd,
+    RandScaleIntensityd,
+    RandShiftIntensityd,
+    RandSpatialCropd,
+    Spacingd,
+    EnsureChannelFirstd,
+    EnsureTyped,
+)
 
 
-class BraTsDataset(Dataset):
+class BrainTumorSegmentaion(DecathlonDataset):
+
     """
-    BraTS is a dataset which provides multimodal 3D brain MRIs and ground truth brain tumor segmentations annotated by physicians, consisting of 4 MRI modalities per case (T1, T1c, T2, and FLAIR).
-    Annotations include 3 tumor subregions—the enhancing tumor, the peritumoral edema, and the necrotic and non-enhancing tumor core. The annotations were combined into 3 nested subregions—whole tumor (WT), tumor core (TC), and enhancing tumor (ET).
-    The data were collected from 19 institutions, using various MRI scanners
-
-    more on https://paperswithcode.com/dataset/brats-2018-1
+    The Dataset to automatically download the data of Medical Segmentation Decathlon challenge
+    (http://medicaldecathlon.com/) and generate items for training, validation or test.
+    It will also load these properties from the JSON config file of dataset. user can call `get_properties()`
+    to get specified properties or all the properties loaded.
     """
 
-    NOT_TUMOR = 0
-    NON_ENHANCING_TUMOR = 1
-    EDEMA = 2
-    ENHANCING_TUMOR = 4
+    def __init__(self, dataset_path: Union[Path, str], transforms, download: bool = False, train_section: bool = False):
+        super().__init__(
+            root_dir=dataset_path,
+            task="Task01_BrainTumour",
+            transform=transforms,
+            download=download,
+            cache_num=0.1,
+            section="training" if train_section else "validation"
+        )
 
-    MRI_MODALITIES = ["flair", "t1", "t1ce", "t2"]
 
-    def __init__(self, dataset_path: Path, expand_segmentations: bool = True, append_on_hot_channel: bool = True) -> None:
-        super().__init__()
-        # list of dataset samples into pytorch list
-        self.sample_list = self._list_samples(path=dataset_path)
+class BratsClassesOnHot(MapTransform):
+    """
+    Convert labels to multi channels based on brats classes:
+    label 1 is the peritumoral edema
+    label 2 is the GD-enhancing tumor
+    label 3 is the necrotic and non-enhancing tumor core
+    The possible classes are TC (Tumor core), WT (Whole tumor)
+    and ET (Enhancing tumor).
 
-        self.expand_segmentations = expand_segmentations
-        self.append_on_hot_channel = append_on_hot_channel
+    """
 
-    @staticmethod
-    def _list_samples(path):
-        lsdir = list(Path(path).iterdir())
-        print(f"loading {len(lsdir)} samples from {str(path)}")
-        return lsdir
+    def __call__(self, data):
+        d = dict(data)
+        for key in self.keys:
+            result = []
+            # merge label 2 and label 3 to construct TC
+            result.append(np.logical_or(d[key] == 2, d[key] == 3))
+            # merge labels 1, 2 and 3 to construct WT
+            result.append(
+                np.logical_or(
+                    np.logical_or(d[key] == 2, d[key] == 3), d[key] == 1
+                )
+            )
+            # label 2 is ET
+            result.append(d[key] == 2)
+            d[key] = np.stack(result, axis=0).astype(np.float32)
+        return d
 
-    def load_channels(self, idx):
-        """Read samples from dataset and return mri channels (T1, T2, FLAIR, T1CE) and corresponding segmentation.
-        """
-        sample_dir = self.sample_list[idx]
-        sample_id = sample_dir.name
 
-        channel_files = [
-            sample_dir / f"{sample_id}_{file_tag}.nii.gz" for file_tag in self.MRI_MODALITIES]
+BRATS_TRAIN_TRANSFORM = Compose(
+    [
+        # load 4 Nifti images and stack them together
+        LoadImaged(keys=["image", "label"]),
+        EnsureChannelFirstd(keys="image"),
+        BratsClassesOnHot(keys="label"),
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        Spacingd(
+            keys=["image", "label"],
+            pixdim=(1.0, 1.0, 1.0),
+            mode=("bilinear", "nearest"),
+        ),
+        RandSpatialCropd(keys=["image", "label"], roi_size=[
+            128, 128, 128], random_size=False),
+        RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),
+        RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=1),
+        RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=2),
+        NormalizeIntensityd(keys="image", nonzero=True, channel_wise=True),
+        RandScaleIntensityd(keys="image", factors=0.1, prob=1.0),
+        RandShiftIntensityd(keys="image", offsets=0.1, prob=1.0),
+        EnsureTyped(keys=["image", "label"]),
+    ]
+)
 
-        nifty_channels = torch.stack(
-            [MRI(channel).to_tensor() for channel in channel_files])
 
-        segmentation = MRI(sample_dir / f"{sample_id}_seg.nii.gz").to_tensor()
-
-        return nifty_channels, segmentation
-
-    @staticmethod
-    def concate_one_hot_encoding(input_channels: np.array):
-        """
-        To distinguish between background voxels and normalized voxels which have values close to zero,
-        we add an input channel with one-hot encoding for foreground voxels and stacked with the input data.
-        As a result, each example has 5 channels.
-
-        output channels: T1, T2, FLAIR, T1CE, on_hot.
-        """
-
-        mask = np.ones(input_channels.shape[1:], dtype=np.float32)
-        for idx in range(input_channels.shape[0]):
-            mask[np.where(input_channels[idx] <= 0)] *= 0.0
-        mask = np.expand_dims(mask, 0)
-        return np.concatenate([input_channels, mask])
-
-    def expand_on_hot_segmentation(self, seg: np.array):
-        """segmentation consist of 4 pixel value: 0 for non-tumor, 1 for non-enhancing, 2 for edema and 4 for enhancing tumor.
-        segmentation data of shape (240, 240, 155) will be transformed into (3, 240, 240, 155) to seperate each channel.
-        """
-
-        width, height, samples = seg.shape
-        sliced_segmentation = []
-        segmentations = [self.NON_ENHANCING_TUMOR,
-                         self.ENHANCING_TUMOR, self.EDEMA]
-
-        for segment_index in segmentations:
-            mask = np.zeros((width, height, samples))
-            idxs = np.where(seg == segment_index)
-            mask[idxs] = 1
-            sliced_segmentation.append(mask)
-
-        return np.array(sliced_segmentation)
-
-    def __getitem__(self, index):
-        """ return 
-        """
-        channels, segmentations = self.load_channels(index)
-
-        if self.append_on_hot_channel:
-            channels = self.concate_one_hot_encoding(input_channels=channels)
-
-        if self.expand_segmentations:
-            segmentations = self.expand_on_hot_segmentation(segmentations)
-
-        T = torch.tensor
-        return T(channels), T(segmentations)
-
-    def __len__(self):
-        return len(self.sample_list)
+BRATS_VALIDATION_TRANSFORM = Compose(
+    [
+        LoadImaged(keys=["image", "label"]),
+        EnsureChannelFirstd(keys="image"),
+        BratsClassesOnHot(keys="label"),
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        Spacingd(
+            keys=["image", "label"],
+            pixdim=(1.0, 1.0, 1.0),
+            mode=("bilinear", "nearest"),
+        ),
+        NormalizeIntensityd(keys="image", nonzero=True, channel_wise=True),
+        EnsureTyped(keys=["image", "label"]),
+    ]
+)
