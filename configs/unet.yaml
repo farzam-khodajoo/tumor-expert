@@ -1,8 +1,6 @@
 model:
   # number of input channels
-  # Brats samples have 4 channels (T1, T2, T1CE, FLAIR),
-  # and hot_hot_encoding concated to channel result into 5 input channels
-  in_channels: 5
+  in_channels: 4
   # number of output channels
   out_channels: 3
   # strides each layer
