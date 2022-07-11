@@ -1,0 +1,29 @@
+model:
+  # number of input channels
+  # Brats samples have 4 channels (T1, T2, T1CE, FLAIR),
+  # and hot_hot_encoding concated to channel result into 5 input channels
+  in_channels: 5
+  # number of output channels
+  out_channels: 3
+  # strides each layer
+  strides: [[1, 1, 1], [2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2]]
+  # filter feature map for each layer
+  filters: [64, 96, 128, 192, 256, 384, 512]
+  # using Dropout in model
+  dropout: true
+
+  # in order for U-Net to work without mismatch errors
+  # BraTs samples with size (240, 240, 155) should get patch
+  # into (128, 128, 128) before getting feed.
+
+loss:
+  # if false, channel index zero will be excluded from calculation
+  background: true
+  # apply sigmoid function to prediction
+  sigmoid: true
+  # a small constant added to the denominator to avoid nan.
+  smooth_dr: 1e-5
+  
+  batch: false
+  # will be used only if loss function is DiceFocalLoss
+  gamma: 2
