@@ -1,6 +1,6 @@
-from monai.networks.nets import UNet
+from monai.networks.nets import DynUnet
 
-class DynUnet3D(UNet):
+class DynUnet3D(DynUnet):
     """
     Create 3D model from given config parameters
 
@@ -21,7 +21,9 @@ class DynUnet3D(UNet):
             spatial_dims=3,
             in_channels=config["in_channels"],
             out_channels=config["out_channels"],
-            channels=config["filters"],
+            filters=config["filters"],
+            kernel_size=config["kernels"],
             strides=config["strides"],
+            upsample_kernel_size=config["strides"][1:],
             dropout=config["dropout"]
         )

@@ -4,16 +4,9 @@ model:
   # number of output channels
   out_channels: 3
   # strides each layer
-  strides:
-    [
-      [1, 1, 1],
-      [2, 2, 2],
-      [2, 2, 2],
-      [2, 2, 2],
-      [2, 2, 2],
-      [2, 2, 2],
-      [2, 2, 2],
-    ]
+  strides: [1, 2, 2, 2, 2, 2, 2]
+  # kernel size each layer
+  kernels: [3, 3, 3, 3, 3, 3, 3]
   # filter feature map for each layer
   filters: [64, 96, 128, 192, 256, 384, 512]
   # using Dropout in model
