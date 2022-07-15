@@ -8,7 +8,7 @@ from monai.metrics import DiceMetric
 from monai.data import decollate_batch
 
 
-class DiceLightningMetric(DiceMetric, Module):
+class DiceLightningMetric(DiceMetric):
     """Compute average dice loss for model evaluation"""
 
     post_trans = Compose(
