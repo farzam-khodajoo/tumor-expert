@@ -79,5 +79,5 @@ class LightningSegmentationModel(pl.LightningModule):
         metric_loss = self.metric_fn(output, segmentations)
         self.log(self.metric_tag, metric_loss)
 
-    def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0):
+    def predict_step(self, batch, batch_idx):
         pass
