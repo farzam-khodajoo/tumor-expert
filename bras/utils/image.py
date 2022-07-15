@@ -54,7 +54,7 @@ def expand_segmentation_as_one_hot(segmentation_batch, indexes):
 
     stacked_segmentations = []
 
-    for segment in segmentation_batch.numpy():
+    for segment in segmentation_batch.cpu().numpy():
         width, height, slides = segment.shape
         segment_channels = []
 
