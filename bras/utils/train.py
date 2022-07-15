@@ -3,8 +3,8 @@ import importlib
 from torch import optim
 from torch.nn import Module
 import pytorch_lightning as pl
-from bras.utils.image import expand_segmentation_as_one_hot
-
+from monai.inferers import sliding_window_inference
+from bras.nn.metric import DiceLightningMetric
 
 def create_optimizer(optimizer_config, model):
     learning_rate = optimizer_config['learning_rate']
@@ -28,6 +28,7 @@ def create_lr_scheduler(lr_config, optimizer):
 
 class LightningSegmentationModel(pl.LightningModule):
     """General Lightning module workflow, used with pl.Trainer()"""
+
     def __init__(self, torch_model, loss_fn, optimizer, scheduler, metric: Tuple[str, Module]) -> None:
         super().__init__()
 
@@ -36,6 +37,14 @@ class LightningSegmentationModel(pl.LightningModule):
         self.optimizer = optimizer
         self.scheduler = scheduler
         self.metric_tag, self.metric_fn = metric
+
+        self.inference = lambda input: sliding_window_inference(
+            inputs=input,
+            roi_size=(128, 128, 128),
+            sw_batch_size=1,
+            predictor=self.model,
+            overlap=0.5,
+        )
 
     def forward(self, x):
         return self.model(x)
@@ -53,8 +62,6 @@ class LightningSegmentationModel(pl.LightningModule):
             batch['image'],
             batch['label']
         )
-        # convert multi-label segmentation into multi-channel on-hot (0-1)
-        segmentations = expand_segmentation_as_one_hot(segmentations, indexes=[1, 2, 4])
 
         output = self.model(input_channels)
         loss_value = self.loss_fn(output, segmentations)
@@ -67,9 +74,10 @@ class LightningSegmentationModel(pl.LightningModule):
             batch['image'],
             batch['label']
         )
-        # convert multi-label segmentation into multi-channel on-hot (0-1)
-        segmentations = expand_segmentation_as_one_hot(segmentations, indexes=[1, 2, 4])
 
-        output = self.model(input_channels)
+        output = self.inference(input_channels)
         metric_loss = self.metric_fn(output, segmentations)
         self.log(self.metric_tag, metric_loss)
+
+    def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0):
+        pass
