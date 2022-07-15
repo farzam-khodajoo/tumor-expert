@@ -23,7 +23,6 @@ loss:
   sigmoid: true
   # a small constant added to the denominator to avoid nan.
   smooth_dr: 1e-5
-
   batch: false
   # will be used only if loss function is DiceFocalLoss
   gamma: 2
