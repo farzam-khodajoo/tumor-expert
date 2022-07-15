@@ -49,7 +49,10 @@ class LightningSegmentationModel(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         # deconstruct data batch
-        input_channels, segmentations = batch
+        input_channels, segmentations = (
+            batch['image'],
+            batch['label']
+        )
         # convert multi-label segmentation into multi-channel on-hot (0-1)
         segmentations = expand_segmentation_as_one_hot(segmentations, indexes=[1, 2, 4])
 
@@ -60,7 +63,10 @@ class LightningSegmentationModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         # deconstruct data batch
-        input_channels, segmentations = batch
+        input_channels, segmentations = (
+            batch['image'],
+            batch['label']
+        )
         # convert multi-label segmentation into multi-channel on-hot (0-1)
         segmentations = expand_segmentation_as_one_hot(segmentations, indexes=[1, 2, 4])
 
