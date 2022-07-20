@@ -4,7 +4,7 @@ from torch import optim
 from torch.nn import Module
 import pytorch_lightning as pl
 from monai.inferers import sliding_window_inference
-from bras.nn.metric import DiceLightningMetric
+
 
 def create_optimizer(optimizer_config, model):
     learning_rate = optimizer_config['learning_rate']
@@ -40,7 +40,7 @@ class LightningSegmentationModel(pl.LightningModule):
 
         self.inference = lambda input: sliding_window_inference(
             inputs=input,
-            roi_size=(128, 128, 128),
+            roi_size=(96, 96, 96),
             sw_batch_size=1,
             predictor=self.model,
             overlap=0.5,

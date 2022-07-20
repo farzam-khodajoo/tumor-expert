@@ -30,6 +30,7 @@ class MRI:
     def to_tensor(self):
         return torch.tensor(self.image_stack)
 
+    
 
 class CropBackground(torch.nn.Module):
 
