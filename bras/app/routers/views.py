@@ -1,25 +1,38 @@
+from functools import partial
+from io import BytesIO
 import logging
-from typing import List
+from shutil import ExecError
 from fastapi import APIRouter, UploadFile
-from bras.app.components.nifty import NiftyViewManager
+from fastapi.responses import FileResponse
+from bras.app.settings import settings
+from bras.app.components.nifty import SegmentationController
 
 # dedicated to nifty file views
 router = APIRouter()
-manager = NiftyViewManager()
-
+controller = SegmentationController(
+    path_to_onnx=settings.SEGMENTATION_MODEL_WEIGHTS
+)
 
 @router.post("/", tags=["views"])
-async def upload_new_sample(t1_weight: UploadFile):
+async def upload_new_sample(
+    t1: UploadFile,
+    t2: UploadFile,
+    t1ce: UploadFile,
+    flair: UploadFile
+):
+    logging.info("processing new segmentation request")
     try:
-        logging.info("processing T1 weights")
-        t1 = await manager.get_view(t1_weight)
+        nii_path = await controller.process_segmentation(
+            t1=t1,
+            t1ce=t1ce,
+            t2=t2,
+            flair=flair
+        )
 
-        return {
-            "t1": t1
-        }
+        return FileResponse(nii_path)
 
-    except Exception as error:
-        logging.warn(error)
+    except ExecError as error:
+        logging.warning(error)
         return {
-            "message": error
+            "message": "error"
         }
