@@ -59,6 +59,8 @@ install dependencies:
 
 `pip install -r requirements.txt`
 
+install source as local package:
+`pip install -e .`
 
 set trained model path to onnx file place in repositiry:
 
