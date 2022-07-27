@@ -21,7 +21,7 @@ Run The Container
 ### Manual installation
 Tumor Expert uses React for Web applications which placed in another repository, thus we need to clone and get the production build first:
 ```
-git clone https://github.com/arshamkhodajoo/tumor-export-frontend.git
+git clone https://github.com/arshamkhodajoo/tumor-expert-frontend.git
 cd tumor-expert-frontend
 ```
 
