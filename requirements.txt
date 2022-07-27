@@ -1,5 +1,5 @@
 aiofiles
-fatapi
+fastapi
 uvicorn[standard]
 monai
 nibabel
