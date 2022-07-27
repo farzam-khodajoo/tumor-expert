@@ -50,7 +50,7 @@ At this point, we are ready to setup Server.
 get out of `/tumor-expert-frontend` and run:
 
 ```
-git clone https://github.com/arshamkhodajoo/tumor-export.git
+git clone https://github.com/arshamkhodajoo/tumor-expert.git
 cd tumor-expert
 ```
 
