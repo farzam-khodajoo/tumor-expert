@@ -11,17 +11,26 @@ Tumor Expert takes four sequences of MRI Nifti files, namely T1-Weight, T1CE-Wei
 ### Upload Files
 <img src="https://github.com/arshamkhodajoo/tumor-expert-frontend/blob/main/public/upload-guid.gif" width="300px"/>
 
-application expects four MRI sequences (T1, T2, T1CE, FLAIR). to classify files, corresponding keyword should be places in each filename
-for example, `case_something_t1.nii.gz` will be interpreted as T1 weight, and `something_flair.nii.gz` as FLAIR.
+application expects four MRI sequences (T1, T2, T1CE, FLAIR). to classify files, corresponding keyword should be placed in each filename
 
-here is  a table with example
- 
+for example:
+
+`case_something_t1.nii.gz` will be interpreted as T1 weight
+
+and `something_flair.nii.gz` as FLAIR.
+
+### View, Scale, Segment
+<img src="https://github.com/arshamkhodajoo/tumor-expert-frontend/blob/main/public/view-expert.gif" width="300px">
+view options are on the top left corner, you can switch view from sequence weights, hide segmentation and scale image on screen
+
+and slicer on the bottom.
+
 ## Installation and Setup
 
 ### Docker Installation
 build The Container:
 
-`docker build -t brain-tumor-export <path_to>/tumor-expert`
+`docker build -t brain-tumor-expert <path_to>/tumor-expert`
 
 Run The Container
 
@@ -96,3 +105,42 @@ uvicorn app:app --port 8000
 now server is running on `localhost:8000`
 
 open your browser and type `localhost:8000`to load application.
+
+## Deep Learning Model
+An 3D U-net structure were used to segment tumor spot on input images.
+
+For production, Tumor Expert uses [OpenVino's open 3D brain tumor segmentation model](https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/public/brain-tumor-segmentation-0002) and inference model is optimized for Intel CPUs
+
+**There is** a custome training pipline if you like to train locally, please check `notebooks/colab_brats_train.ipynb`
+
+Please check `config/unet.yaml` for model structure and train pipeline settings,
+model hyperparameters were taken from this [paper](https://arxiv.org/abs/2110.03352)
+
+
+## API 
+API Interface also can be used separately, you can use inference call at `localhost:8000/view` to get segmentation nifti file.
+
+example:
+```javascript
+const data = {
+  t1: File(...),
+  t1ce: File(...),
+  t2: File(...),
+  flair: File(...)
+}
+
+const form = new Form()
+for (const [key, value] of Object.entries(data)) {
+        form.append(key, value)
+}
+
+axios({
+        method: "POST",
+        url: "localhost:8000/views/",
+        data: form,
+        headers: {
+            "Content-Type": "multipart/form-data"
+        },
+        responseType: 'blob'
+    })
+```
