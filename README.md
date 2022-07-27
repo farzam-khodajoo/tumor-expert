@@ -7,6 +7,15 @@ Gliomas are the most common primary brain tumors, and Magnetic Resonance Imaging
 
 Tumor Expert takes four sequences of MRI Nifti files, namely T1-Weight, T1CE-Weight, T2-weight, and Fluid Attenuation Inversion Recovery (FLAIR) images, to segment tumors as Whole Tumor, Enhancing Tumor, non-Enhancing tumor.
 
+## Toturial
+### Upload Files
+<img src="https://github.com/arshamkhodajoo/tumor-expert-frontend/blob/main/public/upload-guid.gif" width="300px"/>
+
+application expects four MRI sequences (T1, T2, T1CE, FLAIR). to classify files, corresponding keyword should be places in each filename
+for example, `case_something_t1.nii.gz` will be interpreted as T1 weight, and `something_flair.nii.gz` as FLAIR.
+
+here is  a table with example
+ 
 ## Installation and Setup
 
 ### Docker Installation
