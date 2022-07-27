@@ -42,7 +42,8 @@ for Linux:
 for PowerShell (Windows): 
 
 
-```$ENV:REACT_BUILD=pwd
+```
+$ENV:REACT_BUILD=pwd
 $ENV:REACT_BUILD += "\build"
 ```
 
