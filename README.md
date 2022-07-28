@@ -1,6 +1,20 @@
 <img src="https://github.com/arshamkhodajoo/tumor-export-frontend/raw/main/public/review.png" />
 
-## About Tumor Expert.
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+
+# Table of content
+* [The Project: Problem, Solution and Product](#about-tumor-expert)
+* [Toturial](#toturial)
+* [Install using Dokcer](#docker-installation)
+* [Install Manually](#manual-installation)
+* [Deep Learning Model](#deep-learning-model)
+* [Using API interface](#api)
+
+## About Tumor Expert
 ### Problem
 Brain tumors include the most threatening types of tumors around the world. Glioma, the most common primary brain tumors, occurs due to the carcinogenesis of glial cells in the spinal cord and brain. Glioma is characterized by several histological and malignancy grades, and an average survival time of fewer than 14 months after diagnosis for glioblastoma patients.
 
