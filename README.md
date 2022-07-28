@@ -51,6 +51,8 @@ T1CE  | `example_sample_somthing_t1ce.nii.gz`
 T2 | `example_sample_somthing_t2.nii.gz`
 FLAIR | `example_sample_somthing_flair.nii.gz`
 
+you can find sample files [here](https://github.com/arshamkhodajoo/tumor-expert/tree/main/public/samples).
+
 ### View, Scale, Segment
 <img src="https://github.com/arshamkhodajoo/tumor-expert-frontend/blob/main/public/view-expert.gif" width="300px">
 
