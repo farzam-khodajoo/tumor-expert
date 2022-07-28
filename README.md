@@ -26,11 +26,11 @@ However, the manual segmentation and analysis of structural MRI images of brain 
 Segmenting brain tumors and subregions automatically from multi-modal MRI is important for reproducible and accurate measurement of the tumors, and this can assist better diagnosis, treatment planning and evaluation.
 
 Recently, deep learning methods with Convolutional Neural Networks (CNNs) have become the state-of-the-art approaches for brain tumor segmentation.
-A key problem for CNN-based segmentation is to design a suitable network structure and training strategy. Using a 2D CNN in a slice-by-slice manner has a relatively low memory requirement, but the network ignores 3D information, which will ultimately limit the performance of the segmentation. Using 3D CNNs can better exploit 3D features,
+A key problem for CNN-based segmentation is to design a suitable network structure and training strategy. Using a 2D CNN in a slice-by-slice manner has a relatively low memory requirement, but the network ignores 3D information, which will ultimately limit the performance of the segmentation. Using 3D CNNs can better exploit 3D features.
 
 
 ### The Product
-We introduce Tumor Expert, A web-based application which utilize 3D CNNs (or 3D U-net specifically) for automatic segmenting brain tumors (Glioma) while enable you to visualize slices and modalities with tumor area spotted with tree label:
+We introduce Tumor Expert, web-based application which utilize 3D CNNs (or 3D U-net specifically) for automatic segmenting brain tumors (Glioma) while enable you to visualize slices and modalities with tumor area spotted with tree label:
 
 Label  | Region color
 ------------- | -------------
