@@ -126,20 +126,37 @@ now server is running on `localhost:8000`
 open your browser and type `localhost:8000`to load application.
 
 ## Deep Learning Model
-An 3D U-net structure were used to segment tumor spot on input images.
+### Berief introduction
+**U-Net** architecture (shown in the Fig below) is characterised by a symmetric
+U-shape, and can be divided into two parts, i.e., encoder and decoder. The first
+part is the contracting path (encoder) which is transforming the input volume
+into lower dimensional space. The encoder has a modular structure consisting
+of repeating convolution blocks. Each block has two smaller blocks of transformations (dark and light blue blocks on the Fig. 2). The first smaller block is
+reducing the spatial dimensions of the input feature map by a factor of two
+via convolutional layer with kernels 3x3x3 and stride 2x2x2, then instance normalization and Leaky ReLU activation with negative slope if 0.01 are applied
+(dark blue block). Next feature map is transformed with almost the same set of
+operations except that the convolutional layer has stride 1x1x1 (light blue).
 
-For production, Tumor Expert uses [OpenVino's open 3D brain tumor segmentation model](https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/public/brain-tumor-segmentation-0002) and inference model is optimized for Intel CPUs
+<img src="https://github.com/arshamkhodajoo/tumor-expert-frontend/blob/main/public/structure.png" />
 
-**There is** a custome training pipline if you like to train locally, please check `notebooks/colab_brats_train.ipynb`
+### Inference and Production
+[OpenVino's runtime](https://docs.openvino.ai/latest/index.html) been used to accelerate processing and optimize memory usage at production.</br>
+there is limited list of supported Intel CPUs than could benefit from this inference optimization,[ see this](https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/overview.html) for more information
 
-Please check `config/unet.yaml` for model structure and train pipeline settings,
+For more documentation of model Inputs and Outputs, [check this link](https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/public/brain-tumor-segmentation-0002).
+
+### Custome Train
+To train locally, please check `notebooks/colab_brats_train.ipynb` for complete training/evaluating pipline, also `config/unet.yaml` for model structure and hyperparameter.
+
 model hyperparameters were taken from this [paper](https://arxiv.org/abs/2110.03352)
 
+ **You may experience Runtime Reset and crashes when using Google Colab free version, consider using Colab Pro for more CUDA memory**
 
 ## API 
 API Interface also can be used separately, you can use inference call at `localhost:8000/view` to get segmentation nifti file.
+all four modals (t1, t1ce, t2, flair) nifti files should be sent as multi-part form data.
 
-example:
+example using JavaScript and Axios:
 ```javascript
 const data = {
   t1: File(...),
