@@ -9,7 +9,7 @@
 # Table of content
 * [The Project: Problem, Solution and Product](#about-tumor-expert)
 * [Toturial](#toturial)
-* [Install using Dokcer](#docker-installation)
+* [Install using Docker](#docker-installation)
 * [Install Manually](#manual-installation)
 * [Deep Learning Model](#deep-learning-model)
 * [Using API interface](#api)
