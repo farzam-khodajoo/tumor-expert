@@ -1,29 +1,48 @@
 <img src="https://github.com/arshamkhodajoo/tumor-export-frontend/raw/main/public/review.png" />
 
 ## About Tumor Expert.
-Tumor Expert is a tumor segmentation and classification software built to simplify medical imaging tasks for radiologists.
+### Problem
+Brain tumors include the most threatening types of tumors around the world. Glioma, the most common primary brain tumors, occurs due to the carcinogenesis of glial cells in the spinal cord and brain. Glioma is characterized by several histological and malignancy grades, and an average survival time of fewer than 14 months after diagnosis for glioblastoma patients.
 
-Gliomas are the most common primary brain tumors, and Magnetic Resonance Imaging (MRI) of brain tumors is critical for progression evaluation, treatment planning, and assessment of this disease.
+Magnetic Resonance Imaging (MRI), a popular non-invasive strategy, produces a large and diverse number of tissue contrasts in each imaging modality and has been widely used by medical specialists to diagnose brain tumors.
 
-Tumor Expert takes four sequences of MRI Nifti files, namely T1-Weight, T1CE-Weight, T2-weight, and Fluid Attenuation Inversion Recovery (FLAIR) images, to segment tumors as Whole Tumor, Enhancing Tumor, non-Enhancing tumor.
+However, the manual segmentation and analysis of structural MRI images of brain tumors is an arduous and time-consuming task which, thus far, can only be accomplished by professional neuroradiologists
+
+### Solution
+Segmenting brain tumors and subregions automatically from multi-modal MRI is important for reproducible and accurate measurement of the tumors, and this can assist better diagnosis, treatment planning and evaluation.
+
+Recently, deep learning methods with Convolutional Neural Networks (CNNs) have become the state-of-the-art approaches for brain tumor segmentation.
+A key problem for CNN-based segmentation is to design a suitable network structure and training strategy. Using a 2D CNN in a slice-by-slice manner has a relatively low memory requirement, but the network ignores 3D information, which will ultimately limit the performance of the segmentation. Using 3D CNNs can better exploit 3D features,
+
+
+### The Product
+We introduce Tumor Expert, A web-based application which utilize 3D CNNs (or 3D U-net specifically) for automatic segmenting brain tumors (Glioma) while enable you to visualize slices and modalities with tumor area spotted with tree label:
+
+Label  | Region color
+------------- | -------------
+Whole Tumor  | Blue
+Tumor Core  | Red
+Enhancing Tumor | Green
 
 ## Toturial
 ### Upload Files
 <img src="https://github.com/arshamkhodajoo/tumor-expert-frontend/blob/main/public/upload-guid.gif" width="300px"/>
 
-application expects four MRI sequences (T1, T2, T1CE, FLAIR). to classify files, corresponding keyword should be placed in each filename
+- Application expects four MRI sequences (T1, T2, T1CE, FLAIR), and in order to classify files, corresponding keyword should be placed in each filename
 
-for example:
-
-`case_something_t1.nii.gz` will be interpreted as T1 weight
-
-and `something_flair.nii.gz` as FLAIR.
+Weight  | Example filename
+------------- | -------------
+T1  | `example_sample_somthing_t1.nii.gz`
+T1CE  | `example_sample_somthing_t1ce.nii.gz`
+T2 | `example_sample_somthing_t2.nii.gz`
+FLAIR | `example_sample_somthing_flair.nii.gz`
 
 ### View, Scale, Segment
 <img src="https://github.com/arshamkhodajoo/tumor-expert-frontend/blob/main/public/view-expert.gif" width="300px">
-view options are on the top left corner, you can switch view from sequence weights, hide segmentation and scale image on screen
 
-and slicer on the bottom.
+- View options are on the top left corner, you can switch view from sequence weights, hide segmentation and scale image on screen.
+- There is also static information about segmentation colors on top left corner.
+- The Slicer is on the bottom.
 
 ## Installation and Setup
 
