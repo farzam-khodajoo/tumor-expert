@@ -15,7 +15,7 @@ import torch
 
 class NiftyFileManager:
 
-    temp_directory = "./temporary_data_directory"
+    temporary_directory: str
 
     async def save_and_return_path(self, file: UploadFile):
         """
@@ -23,7 +23,7 @@ class NiftyFileManager:
         this approach is temporary for later be replaced with file-like object reader.
         """
 
-        dir_path = Path(self.temp_directory)
+        dir_path = Path(self.temporary_directory)
 
         # create directory if not exists
         dir_path.mkdir(exist_ok=True)
@@ -37,9 +37,9 @@ class NiftyFileManager:
         return file_path
 
     def remove_temporary_directory(self):
-        if Path(self.temp_directory).exists():        
+        if Path(self.temporary_directory).exists():        
             logging.info("clear temporary directory")
-            shutil.rmtree(self.temp_directory)
+            shutil.rmtree(self.temporary_directory)
 
 
 class NiftyFileReader:
@@ -67,10 +67,11 @@ class NiftyFileReader:
         return mask
 
 class SegmentationController(NiftyFileManager, NiftyFileReader, VinoBraTs):
-    def __init__(self, path_to_onnx) -> None:
+    def __init__(self, path_to_onnx, temporary_directory) -> None:
         super().__init__(
             path_to_onnx=path_to_onnx
         )
+        self.temporary_directory = temporary_directory
 
     @staticmethod
     def sigmoid_function(z):
@@ -114,7 +115,7 @@ class SegmentationController(NiftyFileManager, NiftyFileReader, VinoBraTs):
         segmentation = self.merge_segmentations(model_output[0])
         ni_img = nib.Nifti1Image(segmentation, affine=np.eye(4))
         
-        save_path = Path(self.temp_directory) / "result.nii.gz"
+        save_path = Path(self.temporary_directory) / "result.nii.gz"
         nib.save(ni_img, save_path)
         return save_path
         

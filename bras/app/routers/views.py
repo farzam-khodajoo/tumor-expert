@@ -10,7 +10,8 @@ from bras.app.components.nifty import SegmentationController
 # dedicated to nifty file views
 router = APIRouter()
 controller = SegmentationController(
-    path_to_onnx=settings.SEGMENTATION_MODEL_WEIGHTS
+    path_to_onnx=settings.SEGMENTATION_MODEL_WEIGHTS,
+    temporary_directory=settings.TEMP_DIR
 )
 
 @router.post("/", tags=["views"])

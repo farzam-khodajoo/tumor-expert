@@ -8,12 +8,17 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
-logging.info("""
+logging.info(
+"""
     react build path: {}
+    react path exists: {}
     onnx path: {}
+    onnx path existws: {}
 """.format(
     settings.REACT_BUILD,
-    settings.SEGMENTATION_MODEL_WEIGHTS
+    Path(settings.REACT_BUILD).exists(),
+    settings.SEGMENTATION_MODEL_WEIGHTS,
+    Path(settings.SEGMENTATION_MODEL_WEIGHTS).exists()
 ))
 
 app.include_router(views.router, prefix="/views")
