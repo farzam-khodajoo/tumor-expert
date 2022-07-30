@@ -163,3 +163,4 @@ cython_debug/
 
 liara.Dockerfile
 temp
+liara.json

@@ -37,7 +37,7 @@ ENV READ_BUILD=frontend/build
 # set path to onnx model
 ENV WEIGHTS=public/brain-tumor-segmentation-0002/brain-tumor-segmentation-0002.onnx
 # temporary directory, only to store temporary files
-ENV TEMP=/tmp/foo
+ENV TEMP=../fileLocation
 
 # run ASGI server on 0.0.0.0:8000
 CMD ["uvicorn", "bras.app.app:app", "--host", "0.0.0.0", "--port", "8000"]
