@@ -24,7 +24,8 @@ class NiftyFileManager:
         """
         random_directory_name = uuid.uuid4()
 
-        dir_path = Path(self.temporary_directory) / random_directory_name
+        Path(self.temporary_directory).mkdir(exist_ok=True)
+        dir_path = Path(self.temporary_directory) / str(random_directory_name)
 
         # create directory if not exists
         dir_path.mkdir(exist_ok=True)
