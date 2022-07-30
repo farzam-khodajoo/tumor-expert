@@ -1,6 +1,6 @@
 """Utilities dedicated to files (.nii)"""
-import enum
 import logging
+import uuid
 import shutil
 import aiofiles
 import numpy as np
@@ -22,8 +22,9 @@ class NiftyFileManager:
         save files into temporary directory to get later get loaded
         this approach is temporary for later be replaced with file-like object reader.
         """
+        random_directory_name = uuid.uuid4()
 
-        dir_path = Path(self.temporary_directory)
+        dir_path = Path(self.temporary_directory) / random_directory_name
 
         # create directory if not exists
         dir_path.mkdir(exist_ok=True)
@@ -81,7 +82,7 @@ class SegmentationController(NiftyFileManager, NiftyFileReader, VinoBraTs):
         return sigmoid 
 
     async def process_segmentation(self, t1, t1ce, t2, flair):
-        self.remove_temporary_directory()
+        #self.remove_temporary_directory()
 
         async def process_nib(x):
             path = await self.save_and_return_path(x)
